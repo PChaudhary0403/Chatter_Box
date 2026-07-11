@@ -1,0 +1,83 @@
+========================================================================
+                      💬 CHATTERBOX COMMUNICATION PLATFORM
+                        Features & Tech-Stack Overview
+========================================================================
+
+ChatterBox is a high-fidelity, real-time desktop messaging platform with
+a warm, premium claymorphic interface. It enforces permission-based
+communication and includes AI-powered tools.
+
+------------------------------------------------------------------------
+🚀 1. CORE FEATURES
+------------------------------------------------------------------------
+
+1. REAL-TIME DIRECT MESSAGING & WebSocket TRANSPORT:
+   - Instant text messaging between connected users.
+   - Bi-directional WebSockets ensure instantaneous delivery.
+   - Live active/inactive online indicators showing who is online.
+   - Live "typing..." feedback indicators.
+
+2. GROUP CHAT SYSTEM:
+   - Create channels and group chats.
+   - Multi-user conversations with member management.
+   - Group creation wizard featuring user selection checkboxes.
+
+3. CHAT REQUEST SYSTEM (Permission-Based Messaging):
+   - Restricts random profiles from sending unsolicited direct messages.
+   - A connection request must be sent and approved before DMing is unlocked.
+   - Relational request states: "Pending", "Accepted", "Declined".
+   - Backend middlewares block message delivery with a 403 Forbidden
+     response if an accepted connection does not exist.
+   - Beautiful claymorphic Action Cards for Send, Accept, and Decline flows.
+
+4. FUZZY FRIEND SEARCH & INBOX FILTERING:
+   - Default Inbox view: Sidebar lists only friends (accepted status),
+     avoiding unsolicited profiles cluttering the view.
+   - "Incoming Requests" section: Displayed prominently at the top of 
+     the sidebar when other users request to connect with you.
+   - Fuzzy Matching Search: Powered by a custom Levenshtein Distance
+     edit-distance algorithm matching partial substrings, prefixes,
+     and typos on usernames to discover new people.
+   - Debounced search fetch requests (300ms) prevent server-side lag.
+
+5. AI MESSAGE SUMMARIZATION:
+   - Integrates Gemini AI API.
+   - Generates contextual summaries of current conversation history
+     at the click of a button in the chat header.
+
+6. AUTHENTICATION & SECURITY:
+   - User Sign-Up and Secure Login validations.
+   - JSON Web Token (JWT) stateless authorization flow.
+   - Password encryption and hashing on database storage via bcrypt.
+
+7. PREMIUM CLAYMORPHIC UI DESIGN:
+   - 3D soft claymorphism theme styled entirely with Vanilla CSS.
+   - Light-toned neutral aesthetics with depth layers (inner inset shadows,
+     soft floating outer shadows, accent highlights).
+   - Micro-animations, responsive state transitions, and hover effects.
+
+------------------------------------------------------------------------
+🛠️ 2. TECH-STACK
+------------------------------------------------------------------------
+
+FRONTEND:
+  - React 18 (Component-based architecture)
+  - TypeScript (Strong typing and autocompletion)
+  - Vite 8.0 (Fast bundling & Hot Module Replacement)
+  - React Router DOM (Declarative routing & protected routes)
+  - Vanilla CSS (Custom design system, variables, and clay shadows)
+  - WebSockets (Built-in WebSocket client API)
+
+BACKEND:
+  - Node.js (Javascript runtime environment)
+  - Express.js (HTTP Server APIs)
+  - TypeScript / ts-node (Backend environment)
+  - ws Library (Native WebSocket Server implementation)
+  - JWT / jsonwebtoken (Stateless token authorization)
+  - bcryptjs (Cryptographic password hashing)
+  - @google/generative-ai (Gemini SDK integration)
+
+DATABASE & INFRASTRUCTURE:
+  - Prisma (Type-safe Database client & ORM migrations)
+  - PostgreSQL (Relational Database management system)
+========================================================================

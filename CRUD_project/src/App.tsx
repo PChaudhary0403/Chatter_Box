@@ -1,14 +1,13 @@
-import { useState,useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import './App.css'
-import type {FormEvent} from 'react';
-import { BrowserRouter,Routes,Route } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
 function App() {
   const [username,setUser] = useState("")
   const [password,setPassword]=useState("")
   const [isLogin,setLogin]=useState(false)
 
-  async function handleSubmit(e:React.FormEvent<HTMLFormElement>){
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>){
     e.preventDefault();
     type logindata={username:string;password:string};
     const data:logindata={
@@ -16,12 +15,14 @@ function App() {
       password
     };
     try{
-      const response=await fetch("http://localhost:4000/login",{
+      const response=await fetch("http://127.0.0.1:4000/login",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify(data)
+        body:JSON.stringify(data),
     });
     const result=await response.json();
+    console.log(result.token)
+    localStorage.setItem("token", result.token)
     if(response.ok){
       setLogin(true)
     }
@@ -34,7 +35,7 @@ function App() {
 
   useEffect(()=>{
     if(isLogin){
-    alert("Admin Login Successful✅")
+    alert("Login Successful✅")
     }
   },[isLogin]);
 
@@ -48,11 +49,18 @@ return (
   <main>
   <section>
     <div>
-      <div>
-          <input placeholder="UserName" value={username} onChange={(e)=>setUser(e.target.value)}></input>
-          <input placeholder="Password" value={password} onChange={(e)=>setPassword(e.target.value)}></input>
+    <form onSubmit={handleSubmit}>
+      <div className="center_div">
+        <div className="container">
+          <div>
+              <input style={{border:"3px solid black"}} placeholder="UserName" value={username} onChange={(e)=>setUser(e.target.value)}></input>
+              <input style={{border:"3px solid black"}} placeholder="Password" value={password} onChange={(e)=>setPassword(e.target.value)}></input>
+          </div>
+        </div>
       </div>
-      <button onClick={handleSubmit}>Submit</button>
+      <button type="submit">Submit</button>
+      </form>
+      <span><Link to="/signup">...Didn't register yet??</Link></span>
     </div>
   </section>
   </main>

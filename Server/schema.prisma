@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  user_id        Int           @id @default(autoincrement())
+  username       String        @unique @db.VarChar(15)
+  password       String
+  CreatedAt      DateTime      @default(now())
+  sentMessages   Message[]     @relation("SentMessages")
+  receivedMessages Message[]   @relation("ReceivedMessages")
+  groupMemberships GroupMember[]
+  createdGroups  Group[]       @relation("CreatedGroups")
+  
+  sentRequests     ChatRequest[] @relation("SentRequests")
+  receivedRequests ChatRequest[] @relation("ReceivedRequests")
+
+  @@map("user")
+}
+
+model Group {
+  group_id    Int           @id @default(autoincrement())
+  name        String        @db.VarChar(50)
+  description String?       @db.VarChar(255)
+  createdAt   DateTime      @default(now())
+  createdById Int
+  createdBy   User          @relation("CreatedGroups", fields: [createdById], references: [user_id])
+  members     GroupMember[]
+  messages    Message[]
+
+  @@map("group")
+}
+
+model GroupMember {
+  group_id Int
+  user_id  Int
+  joinedAt DateTime @default(now())
+  group    Group    @relation(fields: [group_id], references: [group_id], onDelete: Cascade)
+  user     User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@id([group_id, user_id])
+  @@map("group_member")
+}
+
+model Message {
+  message_id Int      @id @default(autoincrement())
+  content    String   @db.Text
+  timestamp  DateTime @default(now())
+  
+  senderId   Int
+  sender     User     @relation("SentMessages", fields: [senderId], references: [user_id], onDelete: Cascade)
+  
+  // For individual chats (one-to-one)
+  receiverId Int?
+  receiver   User?    @relation("ReceivedMessages", fields: [receiverId], references: [user_id], onDelete: Cascade)
+  
+  // For group chats
+  groupId    Int?
+  group      Group?   @relation(fields: [groupId], references: [group_id], onDelete: Cascade)
+
+  @@map("message")
+}
+
+model ChatRequest {
+  request_id Int      @id @default(autoincrement())
+  senderId   Int
+  sender     User     @relation("SentRequests", fields: [senderId], references: [user_id], onDelete: Cascade)
+  receiverId Int
+  receiver   User     @relation("ReceivedRequests", fields: [receiverId], references: [user_id], onDelete: Cascade)
+  status     String   @db.VarChar(20) // "PENDING", "ACCEPTED", "DECLINED"
+  createdAt  DateTime @default(now())
+
+  @@unique([senderId, receiverId])
+  @@map("chat_request")
+}

@@ -1,0 +1,32 @@
+{
+  "dependencies": {
+    "@prisma/client": "^7.6.0",
+    "dotenv": "^17.4.0",
+    "prisma": "^7.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^4.3.0"
+  },
+  "name": "crud",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PChaudhary0403/Chatting_application.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/PChaudhary0403/Chatting_application/issues"
+  },
+  "homepage": "https://github.com/PChaudhary0403/Chatting_application#readme"
+}
