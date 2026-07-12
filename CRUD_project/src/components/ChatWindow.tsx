@@ -34,7 +34,7 @@ export default function ChatWindow({ activeChat, currentUser, messages, typingUs
   const [summary, setSummary] = useState<string | null>(null)
   const [summarizing, setSummarizing] = useState(false)
   const endRef = useRef<HTMLDivElement>(null)
-  const typingTimeout = useRef<ReturnType<typeof setTimeout>>()
+  const typingTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' })
