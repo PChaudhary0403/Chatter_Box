@@ -16,7 +16,7 @@ import {
 
 dotenv.config({ path: "../.env" });
 const app = express();
-const port = 4000;
+const port = process.env.PORT || 4000;
 const httpServer = createServer(app);
 const prisma = new PrismaClient();
 const JWT_SECRET = "Pankaj@0403";
