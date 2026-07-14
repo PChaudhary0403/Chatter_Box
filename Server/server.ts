@@ -21,7 +21,12 @@ const httpServer = createServer(app);
 const prisma = new PrismaClient();
 const JWT_SECRET = "Pankaj@0403";
 
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(",") : "*",
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // ─── Auth Types ──────────────────────────────────────────────
