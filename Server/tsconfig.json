@@ -11,6 +11,11 @@
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true
   },
-  "include": ["**/*.ts"],
-  "exclude": ["node_modules", "migrations"]
+  "include": [
+    "**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "migration
+  ]
 }
