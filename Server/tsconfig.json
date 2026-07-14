@@ -3,6 +3,7 @@
     "target": "ES2022",
     "module": "CommonJS",
     "moduleResolution": "node10",
+    "ignoreDeprecations": "6.0",
     "outDir": "./",
     "rootDir": "./",
     "strict": true,
@@ -16,6 +17,6 @@
   ],
   "exclude": [
     "node_modules",
-    "migration
+    "migrations"
   ]
 }
