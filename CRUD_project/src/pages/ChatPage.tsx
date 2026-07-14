@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import ChatWindow from '../components/ChatWindow'
 import CreateGroupModal from '../components/CreateGroupModal'
+import { API_BASE_URL, WS_BASE_URL } from '../config'
 
 export type User = { user_id: number; username: string }
 export type Group = {
@@ -23,7 +24,7 @@ export type ChatRequest = {
 }
 export type ChatTarget = { type: 'user'; user: User } | { type: 'group'; group: Group }
 
-const BASE = 'http://127.0.0.1:4000'
+const BASE = API_BASE_URL
 
 export default function ChatPage() {
   const navigate = useNavigate()
@@ -91,7 +92,7 @@ export default function ChatPage() {
 
   // ─── WebSocket connection ──────────────────────────────
   useEffect(() => {
-    const ws = new WebSocket('ws://127.0.0.1:4000')
+    const ws = new WebSocket(WS_BASE_URL)
     wsRef.current = ws
 
     ws.onopen = () => {

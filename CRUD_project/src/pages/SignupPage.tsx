@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { API_BASE_URL } from '../config'
 
 export default function SignupPage() {
   const [username, setUsername] = useState('')
@@ -22,7 +23,7 @@ export default function SignupPage() {
     }
     setLoading(true)
     try {
-      const res = await fetch('http://localhost:4000/signup', {
+      const res = await fetch(`${API_BASE_URL}/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),

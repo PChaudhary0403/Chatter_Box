@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react"
+import { API_BASE_URL } from "./config"
 function SignUp() {
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
@@ -11,7 +12,7 @@ function SignUp() {
             password
         }
         try {
-            const response = await fetch("http://localhost:4000/signup", {
+            const response = await fetch(`${API_BASE_URL}/signup`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
