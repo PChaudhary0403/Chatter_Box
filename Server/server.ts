@@ -604,7 +604,7 @@ app.get("/online", auth, async (req, res) => {
 
 // ─── START SERVER ────────────────────────────────────────────
 httpServer.listen(port, async () => {
-  console.log(`🚀 Server is running`);
+  console.log(`🚀 Server is running on ${port}`);
   initializeWebSocketServer(httpServer);
   console.log("✅ WebSocket server initialized");
 });
