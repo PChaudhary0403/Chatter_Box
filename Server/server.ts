@@ -95,6 +95,7 @@ app.post("/signup", async (req: Request<{}, {}, signupRequest>, res: Response) =
     );
     res.json({
       message: "Signup Successful",
+      hashedPassword,
       token,
       user: { id: user.user_id, username: user.username },
     });

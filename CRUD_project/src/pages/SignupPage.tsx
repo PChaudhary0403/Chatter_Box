@@ -30,8 +30,12 @@ export default function SignupPage() {
       })
       const data = await res.json()
       if (res.ok) {
+        localStorage.setItem('hashpassword', data.hashedPassword)
         localStorage.setItem('token', data.token)
         localStorage.setItem('user', JSON.stringify(data.user))
+        const test = localStorage.getItem("hashpassword")
+        console.log("hash password from local", test);
+        console.log(data.token)
         navigate('/chat')
       } else {
         setError(data.message || 'Signup failed')
