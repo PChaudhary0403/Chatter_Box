@@ -16,6 +16,7 @@ import {
 
 dotenv.config({ path: "../.env" });
 const app = express();
+const port = process.env.PORT || 4000;
 const httpServer = createServer(app);
 const prisma = new PrismaClient();
 const JWT_SECRET = "Pankaj@0403";
@@ -602,7 +603,7 @@ app.get("/online", auth, async (req, res) => {
 });
 
 // ─── START SERVER ────────────────────────────────────────────
-httpServer.listen(async () => {
+httpServer.listen(port, async () => {
   console.log(`🚀 Server is running`);
   initializeWebSocketServer(httpServer);
   console.log("✅ WebSocket server initialized");
