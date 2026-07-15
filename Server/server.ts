@@ -27,6 +27,12 @@ app.use(
     credentials: true,
   })
 );
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "Backend is alive 🚀"
+  });
+});
 app.use(express.json());
 
 // ─── Auth Types ──────────────────────────────────────────────
