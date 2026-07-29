@@ -89,10 +89,11 @@ app.post("/signup", async (req: Request<{}, {}, signupRequest>, res: Response) =
   if (!username || !password) {
     return res.status(400).json({ message: "All fields are required" });
   }
-  const existing = await prisma.user.findUnique({ where: { username } });
-  if (existing) return res.status(409).json({ message: "User already exists" });
 
   try {
+    const existing = await prisma.user.findUnique({ where: { username } });
+    if (existing) return res.status(409).json({ message: "User already exists" });
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
       data: { username, password: hashedPassword },
@@ -104,7 +105,6 @@ app.post("/signup", async (req: Request<{}, {}, signupRequest>, res: Response) =
     );
     res.json({
       message: "Signup Successful",
-      hashedPassword,
       token,
       user: { id: user.user_id, username: user.username },
     });
