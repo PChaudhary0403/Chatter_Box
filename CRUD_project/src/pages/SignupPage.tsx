@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { API_BASE_URL } from '../config'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 export default function SignupPage() {
   const [username, setUsername] = useState('')
@@ -23,7 +24,7 @@ export default function SignupPage() {
     }
     setLoading(true)
     try {
-      const res = await fetch(`${API_BASE_URL}/signup`, {
+      const res = await fetch(`${API_URL}/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),

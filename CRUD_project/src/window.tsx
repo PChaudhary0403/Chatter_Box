@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "./config";
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 export default function Chatbox() {
     async function SendMessage() {
@@ -6,7 +6,7 @@ export default function Chatbox() {
         if (!input) return;
         const msg = input.value;
         const token = localStorage.getItem("token");
-        fetch(`${API_BASE_URL}/send`, {
+        fetch(`${API_URL}/send`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

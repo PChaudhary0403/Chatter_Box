@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import './App.css'
 import { Link } from 'react-router-dom';
-import { API_BASE_URL } from './config'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 function App() {
   const [username,setUser] = useState("")
@@ -16,7 +17,7 @@ function App() {
       password
     };
     try{
-      const response=await fetch(`${API_BASE_URL}/login`,{
+      const response=await fetch(`${API_URL}/login`,{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify(data),
