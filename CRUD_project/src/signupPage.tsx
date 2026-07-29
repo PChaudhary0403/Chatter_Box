@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+import { API_BASE_URL } from "./config"
 function SignUp() {
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
@@ -12,7 +12,7 @@ function SignUp() {
             password
         }
         try {
-            const response = await fetch(`${API_URL}/signup`, {
+            const response = await fetch(`${API_BASE_URL}/signup`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
