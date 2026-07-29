@@ -19,6 +19,8 @@ function formatTime(ts: string) {
 interface Props {
   activeChat: ChatTarget | null
   currentUser: User
+  allUsers?: User[]
+  onlineIds?: Set<string>
   messages: Message[]
   typingUser: string | null
   chatRequests: ChatRequest[]
@@ -27,9 +29,10 @@ interface Props {
   onSummarize: () => Promise<string>
   onSendRequest: (receiverId: number) => void
   onRespondRequest: (requestId: number, status: 'ACCEPTED' | 'DECLINED') => void
+  onSelectChat?: (target: ChatTarget) => void
 }
 
-export default function ChatWindow({ activeChat, currentUser, messages, typingUser, chatRequests, onSend, onTyping, onSummarize, onSendRequest, onRespondRequest }: Props) {
+export default function ChatWindow({ activeChat, currentUser, allUsers = [], onlineIds, messages, typingUser, chatRequests, onSend, onTyping, onSummarize, onSendRequest, onRespondRequest, onSelectChat }: Props) {
   const [input, setInput] = useState('')
   const [summary, setSummary] = useState<string | null>(null)
   const [summarizing, setSummarizing] = useState(false)
@@ -71,11 +74,82 @@ export default function ChatWindow({ activeChat, currentUser, messages, typingUs
   // Empty state
   if (!activeChat) {
     return (
-      <div className="chat-main">
-        <div className="empty-state">
+      <div className="chat-main" style={{ overflowY: 'auto' }}>
+        <div className="empty-state" style={{ maxWidth: '880px', padding: '40px 20px', margin: '0 auto' }}>
           <div className="empty-icon">💬</div>
           <h2>Welcome to ChatterBox</h2>
-          <p>Select a person or group from the sidebar to start chatting. Your messages are beautifully organized here.</p>
+          <p style={{ marginBottom: '24px' }}>
+            Select a person or group from the sidebar to start chatting, or explore registered users below to connect!
+          </p>
+
+          {allUsers && allUsers.length > 0 && (
+            <div style={{ width: '100%', marginTop: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                  🌐 Registered Users ({allUsers.length})
+                </h3>
+              </div>
+
+              <div className="explore-grid">
+                {allUsers.map(user => {
+                  const online = onlineIds?.has(String(user.user_id))
+                  const request = chatRequests.find(r =>
+                    (r.senderId === currentUser.user_id && r.receiverId === user.user_id) ||
+                    (r.senderId === user.user_id && r.receiverId === currentUser.user_id)
+                  )
+                  const isConnected = request?.status === 'ACCEPTED'
+                  const isPendingSent = request?.status === 'PENDING' && request.senderId === currentUser.user_id
+                  const isPendingIncoming = request?.status === 'PENDING' && request.receiverId === currentUser.user_id
+
+                  return (
+                    <div key={user.user_id} className="clay-card explore-card" onClick={() => onSelectChat?.({ type: 'user', user })}>
+                      <div className="user-avatar-large" style={{ background: getColor(user.user_id) }}>
+                        {getInitial(user.username)}
+                        <span className={online ? 'online-dot' : 'offline-dot'} style={{ position: 'absolute', bottom: 2, right: 2, width: 12, height: 12, border: '2px solid white' }} />
+                      </div>
+                      <div className="user-name">{user.username}</div>
+                      <div className="user-status">
+                        {online ? '🟢 Online' : 'Offline'}
+                      </div>
+
+                      {isConnected ? (
+                        <button className="clay-btn clay-btn-sm" style={{ width: '100%', marginTop: '4px' }}>
+                          💬 Chat
+                        </button>
+                      ) : isPendingSent ? (
+                        <span className="clay-badge clay-badge-pending" style={{ padding: '6px 12px' }}>⏳ Request Sent</span>
+                      ) : isPendingIncoming && request ? (
+                        <div style={{ display: 'flex', gap: '6px', width: '100%' }}>
+                          <button
+                            className="clay-btn clay-btn-primary clay-btn-sm"
+                            style={{ flex: 1 }}
+                            onClick={e => { e.stopPropagation(); onRespondRequest(request.request_id, 'ACCEPTED') }}
+                          >
+                            Accept
+                          </button>
+                          <button
+                            className="clay-btn clay-btn-danger clay-btn-sm"
+                            style={{ flex: 1 }}
+                            onClick={e => { e.stopPropagation(); onRespondRequest(request.request_id, 'DECLINED') }}
+                          >
+                            Decline
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          className="clay-btn clay-btn-primary clay-btn-sm"
+                          style={{ width: '100%', marginTop: '4px' }}
+                          onClick={e => { e.stopPropagation(); onSendRequest(user.user_id) }}
+                        >
+                          ✨ Connect
+                        </button>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     )

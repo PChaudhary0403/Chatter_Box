@@ -17,6 +17,7 @@ function getInitial(name: string) { return name.charAt(0).toUpperCase() }
 interface Props {
   currentUser: User
   users: User[] // Friends (ACCEPTED requests)
+  allUsers: User[] // Every user registered in the application
   incomingUsers: User[] // Pending incoming requests
   searchResults: User[] // Results from database fuzzy search
   searchQuery: string
@@ -28,11 +29,14 @@ interface Props {
   onSelectChat: (target: ChatTarget) => void
   onCreateGroup: () => void
   onLogout: () => void
+  onSendRequest?: (receiverId: number) => void
+  onRespondRequest?: (requestId: number, status: 'ACCEPTED' | 'DECLINED') => void
 }
 
 export default function Sidebar({
   currentUser,
   users,
+  allUsers = [],
   incomingUsers,
   searchResults,
   searchQuery,
@@ -43,9 +47,12 @@ export default function Sidebar({
   chatRequests,
   onSelectChat,
   onCreateGroup,
-  onLogout
+  onLogout,
+  onSendRequest,
+  onRespondRequest
 }: Props) {
-  const [tab, setTab] = useState<'users' | 'groups'>('users')
+  const [tab, setTab] = useState<'friends' | 'explore' | 'groups'>('friends')
+  const [exploreFilter, setExploreFilter] = useState<'all' | 'online' | 'unconnected'>('all')
 
   const filteredGroups = groups.filter(g =>
     g.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -58,7 +65,27 @@ export default function Sidebar({
     return false
   }
 
-  const renderUserItem = (user: User) => {
+  // Filter all registered users for Explore tab
+  const exploreUsers = (allUsers || []).filter(u => {
+    // Search Query filter
+    if (searchQuery.trim() && !u.username.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return false
+    }
+
+    const request = chatRequests.find(r =>
+      (r.senderId === currentUser.user_id && r.receiverId === u.user_id) ||
+      (r.senderId === u.user_id && r.receiverId === currentUser.user_id)
+    )
+
+    const isOnline = onlineIds.has(String(u.user_id))
+
+    if (exploreFilter === 'online') return isOnline
+    if (exploreFilter === 'unconnected') return !request || request.status !== 'ACCEPTED'
+
+    return true
+  })
+
+  const renderUserItem = (user: User, showExploreActions = false) => {
     const online = onlineIds.has(String(user.user_id))
     const target: ChatTarget = { type: 'user', user }
 
@@ -70,18 +97,24 @@ export default function Sidebar({
 
     let subtitle = 'Not connected'
     let dotClass = 'offline-dot'
+    let isConnected = false
+    let isPendingSent = false
+    let isPendingIncoming = false
 
     if (request) {
       if (request.status === 'ACCEPTED') {
         subtitle = online ? '🟢 Online' : 'Offline'
         dotClass = online ? 'online-dot' : 'offline-dot'
+        isConnected = true
       } else if (request.status === 'PENDING') {
         if (request.senderId === currentUser.user_id) {
           subtitle = '⏳ Request Pending'
           dotClass = 'offline-dot'
+          isPendingSent = true
         } else {
           subtitle = '👋 Wants to Connect'
           dotClass = 'online-dot'
+          isPendingIncoming = true
         }
       } else if (request.status === 'DECLINED') {
         subtitle = '❌ Request Declined'
@@ -98,7 +131,36 @@ export default function Sidebar({
           <div className="item-name">{user.username}</div>
           <div className="item-preview">{subtitle}</div>
         </div>
-        <div className={dotClass} />
+
+        {showExploreActions ? (
+          <div className="item-actions" onClick={e => e.stopPropagation()}>
+            {isConnected ? (
+              <span className="clay-badge clay-badge-success">Friend</span>
+            ) : isPendingSent ? (
+              <span className="clay-badge clay-badge-pending">Pending</span>
+            ) : isPendingIncoming && request ? (
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <button
+                  className="clay-btn clay-btn-primary clay-btn-sm"
+                  style={{ padding: '4px 8px', fontSize: '11px' }}
+                  onClick={() => onRespondRequest?.(request.request_id, 'ACCEPTED')}
+                >
+                  Accept
+                </button>
+              </div>
+            ) : (
+              <button
+                className="clay-btn clay-btn-primary clay-btn-sm"
+                style={{ padding: '4px 10px', fontSize: '11px' }}
+                onClick={() => onSendRequest?.(user.user_id)}
+              >
+                ✨ Connect
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className={dotClass} />
+        )}
       </div>
     )
   }
@@ -118,11 +180,14 @@ export default function Sidebar({
 
       {/* Tabs */}
       <div className="sidebar-tabs">
-        <button className={`sidebar-tab ${tab === 'users' ? 'active' : ''}`} onClick={() => setTab('users')}>
-          👤 People
+        <button className={`sidebar-tab ${tab === 'friends' ? 'active' : ''}`} onClick={() => setTab('friends')}>
+          💬 Friends ({users.length})
+        </button>
+        <button className={`sidebar-tab ${tab === 'explore' ? 'active' : ''}`} onClick={() => setTab('explore')}>
+          🌐 Explore ({(allUsers || []).length})
         </button>
         <button className={`sidebar-tab ${tab === 'groups' ? 'active' : ''}`} onClick={() => setTab('groups')}>
-          👥 Groups
+          👥 Groups ({groups.length})
         </button>
       </div>
 
@@ -130,15 +195,45 @@ export default function Sidebar({
       <div className="sidebar-search">
         <input
           className="clay-input"
-          placeholder={tab === 'users' ? '🔍 Find new friends by username...' : '🔍 Search groups...'}
+          placeholder={
+            tab === 'friends'
+              ? '🔍 Find friends...'
+              : tab === 'explore'
+              ? '🔍 Explore all registered users...'
+              : '🔍 Search groups...'
+          }
           value={searchQuery}
           onChange={e => onSearchChange(e.target.value)}
         />
       </div>
 
+      {/* Explore Filters */}
+      {tab === 'explore' && (
+        <div className="explore-filter-row">
+          <button
+            className={`filter-chip ${exploreFilter === 'all' ? 'active' : ''}`}
+            onClick={() => setExploreFilter('all')}
+          >
+            All Users ({allUsers.length})
+          </button>
+          <button
+            className={`filter-chip ${exploreFilter === 'online' ? 'active' : ''}`}
+            onClick={() => setExploreFilter('online')}
+          >
+            🟢 Online ({allUsers.filter(u => onlineIds.has(String(u.user_id))).length})
+          </button>
+          <button
+            className={`filter-chip ${exploreFilter === 'unconnected' ? 'active' : ''}`}
+            onClick={() => setExploreFilter('unconnected')}
+          >
+            ✨ Discover
+          </button>
+        </div>
+      )}
+
       {/* List */}
       <div className="sidebar-list">
-        {tab === 'users' ? (
+        {tab === 'friends' ? (
           searchQuery.trim() !== '' ? (
             // Search Results Mode
             searchResults.length === 0 ? (
@@ -164,11 +259,22 @@ export default function Sidebar({
               <div className="sidebar-section-header" style={{ marginTop: incomingUsers.length > 0 ? '16px' : '0' }}>👥 Friends</div>
               {users.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '24px 10px', color: 'var(--text-muted)', fontSize: '12px', lineHeight: 1.5 }}>
-                  No friends connected yet.<br />Search usernames above to find friends!
+                  No friends connected yet.<br />Switch to <strong>🌐 Explore</strong> tab to connect with users!
                 </div>
               ) : (
                 users.map(user => renderUserItem(user))
               )}
+            </>
+          )
+        ) : tab === 'explore' ? (
+          exploreUsers.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px 10px', color: 'var(--text-muted)', fontSize: '13px' }}>
+              No registered users found matching filter
+            </div>
+          ) : (
+            <>
+              <div className="sidebar-section-header">🌐 All Registered Users</div>
+              {exploreUsers.map(user => renderUserItem(user, true))}
             </>
           )
         ) : (
@@ -211,3 +317,4 @@ export default function Sidebar({
     </div>
   )
 }
+

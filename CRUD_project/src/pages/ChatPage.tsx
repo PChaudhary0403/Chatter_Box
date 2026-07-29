@@ -292,6 +292,7 @@ export default function ChatPage() {
       <Sidebar
         currentUser={currentUser}
         users={friends}
+        allUsers={users}
         incomingUsers={incomingUsers}
         searchResults={searchResults}
         searchQuery={searchQuery}
@@ -303,10 +304,14 @@ export default function ChatPage() {
         onSelectChat={setActiveChat}
         onCreateGroup={() => setShowGroupModal(true)}
         onLogout={logout}
+        onSendRequest={sendChatRequest}
+        onRespondRequest={respondChatRequest}
       />
       <ChatWindow
         activeChat={activeChat}
         currentUser={currentUser}
+        allUsers={users}
+        onlineIds={onlineIds}
         messages={filteredMessages}
         typingUser={typingUser}
         chatRequests={chatRequests}
@@ -315,6 +320,7 @@ export default function ChatPage() {
         onSummarize={summarizeMessages}
         onSendRequest={sendChatRequest}
         onRespondRequest={respondChatRequest}
+        onSelectChat={setActiveChat}
       />
       {showGroupModal && (
         <CreateGroupModal
