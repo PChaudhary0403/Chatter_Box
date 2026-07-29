@@ -76,9 +76,9 @@ app.post("/login", async (req: Request<{}, {}, loginRequest>, res: Response) => 
       token,
       user: { id: user.user_id, username: user.username },
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Login error:", err);
-    return res.status(500).json({ message: "Server error during login" });
+    return res.status(500).json({ message: "Server error during login", error: err?.message || String(err) });
   }
 });
 
@@ -108,9 +108,9 @@ app.post("/signup", async (req: Request<{}, {}, signupRequest>, res: Response) =
       token,
       user: { id: user.user_id, username: user.username },
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Signup error:", err);
-    res.status(500).json({ message: "Error creating user" });
+    res.status(500).json({ message: "Error creating user", error: err?.message || String(err) });
   }
 });
 
