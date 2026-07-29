@@ -23,7 +23,16 @@ const JWT_SECRET = "Pankaj@0403";
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(",") : "*",
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (process.env.FRONTEND_URL) {
+        const allowedOrigins = process.env.FRONTEND_URL.split(",").map((o) => o.trim());
+        if (allowedOrigins.includes(origin) || allowedOrigins.includes("*")) {
+          return callback(null, origin);
+        }
+      }
+      return callback(null, origin);
+    },
     credentials: true,
   })
 );
